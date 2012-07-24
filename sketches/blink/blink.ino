@@ -65,7 +65,7 @@ void setup() {
   }
    tft.setTextColor(ST7735_WHITE);
    tft.setTextSize(2);
-   htft.setTextWrap(true);
+   tft.setTextWrap(true);
    tft.setCursor(1, -510);
 
 }
