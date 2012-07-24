@@ -2,15 +2,16 @@
 
 void setup()
 {
-  char* data = "{EditorialWorkload: 103, DesignWorkload: 105, AccountManagementWorkload: 95}";
+  char* data = "{\"EditorialWorkload\": \"51\", \"DesignWorkload\": \"96\", \"AccountManagementWorkload\": \"21\"}";
   aJsonObject* jsonObject = aJson.parse(data);
   aJsonObject* ed = aJson.getObjectItem(jsonObject, "EditorialWorkload");
   Serial.begin(9600);
   Serial.println("Editorial:");
-  Serial.println(ed->valueint);
+  Serial.println(ed->valuestring);
 }
 
 void loop()
 {
-  
+
 }
+
