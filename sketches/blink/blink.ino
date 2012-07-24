@@ -28,12 +28,13 @@ Adafruit_ST7735 tft = Adafruit_ST7735(cs, dc, mosi, sclk, rst);
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
 byte mac[] = {  
   0x90, 0xA2, 0xDA, 0x0D, 0x19, 0x58 };
-IPAddress server(10,249,201,20); // Google
+IPAddress server(10,249,201,20); //ev-web-01
 
 // Initialize the Ethernet client library
 // with the IP address and port of the server 
 // that you want to connect to (port 80 is default for HTTP):
 EthernetClient client;
+String json = "";
 
 void setup() {
 
@@ -79,15 +80,17 @@ void loop()
   // from the server, read them and print them:
   if (client.available()) {
     char c = client.read();
-    Serial.print(c);
-    delay(3);
-    tft.print(c);
+    json += c;
+    //Serial.print(c);
+    //delay(3);
+    //tft.print(c);
 
   }
 
 
   // if the server's disconnected, stop the client:
   if (!client.connected()) {
+    Serial.println(json);
     Serial.println();
     Serial.println("disconnecting.");
     client.stop();
