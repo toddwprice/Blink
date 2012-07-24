@@ -26,7 +26,8 @@ Adafruit_ST7735 tft = Adafruit_ST7735(cs, dc, mosi, sclk, rst);
 
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
-byte mac[] = {  0x90, 0xA2, 0xDA, 0x0D, 0x19, 0x58 };
+byte mac[] = {  
+  0x90, 0xA2, 0xDA, 0x0D, 0x19, 0x58 };
 IPAddress server(10,249,201,20); // Google
 
 // Initialize the Ethernet client library
@@ -35,10 +36,10 @@ IPAddress server(10,249,201,20); // Google
 EthernetClient client;
 
 void setup() {
-    
-   tft.initR(INITR_REDTAB);
-   tft.fillScreen(ST7735_BLACK);
-  
+
+  tft.initR(INITR_REDTAB);
+  tft.fillScreen(ST7735_BLACK);
+
   // start the serial library:
   Serial.begin(9600);
   // start the Ethernet connection:
@@ -63,17 +64,17 @@ void setup() {
     // kf you didn't get a connection to the server:
     Serial.println("connection failed");
   }
-   tft.setTextColor(ST7735_WHITE);
-   tft.setTextSize(2);
-   tft.setTextWrap(true);
-   tft.setCursor(1, -510);
+  tft.setTextColor(ST7735_WHITE);
+  tft.setTextSize(2);
+  tft.setTextWrap(true);
+  tft.setCursor(1, -510);
 
 }
 
 void loop()
 {
- 
- 
+
+
   // if there are incoming bytes available 
   // from the server, read them and print them:
   if (client.available()) {
@@ -81,7 +82,7 @@ void loop()
     Serial.print(c);
     delay(3);
     tft.print(c);
- 
+
   }
 
 
@@ -96,4 +97,5 @@ void loop()
       ;
   }
 }
+
 
