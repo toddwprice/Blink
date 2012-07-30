@@ -36,7 +36,9 @@ IPAddress server(10,249,201,20); //ev-web-01
 // that you want to connect to (port 80 is default for HTTP):
 EthernetClient client;
 String json = "";
-char* ajson;
+char ajson[600] = "";
+
+int print = 0;
 
 void setup() {
 
@@ -69,9 +71,11 @@ void setup() {
     Serial.println("connection failed");
   }
   tft.setTextColor(ST7735_WHITE);
-  tft.setTextSize(1);
+  tft.setTextSize(2);
   tft.setTextWrap(true);
   tft.setCursor(0, 0);
+  
+  
   
   
 }
@@ -82,9 +86,15 @@ void loop()
 
   // if there are incoming bytes available 
   // from the server, read them and print them:
+  
   if (client.available()) {
     char c = client.read();
+    if ( c == '{' ) {
+      print = 1;
+    }
+    if (print == 1) {
     json += c;
+    }
     //Serial.print(c);
     //delay(3);
     //tft.print(c);
@@ -99,10 +109,29 @@ void loop()
     json.toCharArray(ajson, 500);
     
     aJsonObject* jsonObject = aJson.parse(ajson);
-    aJsonObject* ed = aJson.getObjectItem(jsonObject, "InvoicesApproved");
-    Serial.println("Editorial:");
-    Serial.println(ed->valuestring);
+    aJsonObject* ed = aJson.getObjectItem(jsonObject, "AmountApproved");
+    Serial.println("Amount Approved:");
+    Serial.println(ed->valuefloat);
     Serial.println("disconnecting.");
+    
+    tft.println();
+    tft.println(" Stats");
+    tft.println(" ========");
+    
+    tft.print(" ed: 100%");
+    tft.setTextSize(1);
+    tft.println();
+    tft.println();
+    
+    tft.setTextSize(2);
+    tft.print(" de: 100%");
+    tft.setTextSize(1);
+    tft.println();
+    tft.println();
+    
+    tft.setTextSize(2);
+    tft.print(" am: 100%");
+    
     client.stop();
 
     // do nothing forevermore:
