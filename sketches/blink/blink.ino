@@ -1,25 +1,31 @@
 /*
   Web client
  
- This sketch connects to a website (http://www.google.com)
- using an Arduino Wiznet Ethernet shield. 
+ This sketch connects to the Staywell Customs internal site
+ using an Arduino Wiznet Ethernet shield, gets data on workload 
+ percentage, and prints it to a tft.
+ 
+ This sketch is based upon the web client example sketch included 
+ in the arduino sdk, created 18 Dec 2009 by David A. Mellis.
+ 
  
  Circuit:
  * Ethernet shield attached to pins 10, 11, 12, 13
  
- created 18 Dec 2009
- by David A. Mellis
- 
  */
+ 
+//define the pins for the tft, since we're not using the spi pins
+//as those would conflict with the ethernet shield
+
 #define sclk 9
 #define mosi 8
 #define cs   7
 #define dc   6
-#define rst  5  // you can also connect this to the Arduino reset
+#define rst  5
 
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library
-#include <SPI.h>
+#include <SPI.h> //spi library for ethernet
 #include <Ethernet.h>
 #include <aJSON.h>
 
@@ -38,13 +44,19 @@ EthernetClient client;
 String json = "";
 char ajson[600] = "";
 
-int print = 0;
+int print = 0; //variable to tell whether or not to store the web data
+
+int screen = 1;
 
 void setup() {
 
-
+  //prepare the LCD to be printed to
   tft.initR(INITR_REDTAB);
   tft.fillScreen(ST7735_BLACK);
+  tft.setTextColor(ST7735_WHITE); 
+  tft.setTextSize(2);
+  tft.setTextWrap(true);
+  tft.setCursor(0, 0);
 
   // start the serial library:
   Serial.begin(9600);
@@ -56,7 +68,7 @@ void setup() {
       ;
   }
   // give the Ethernet shield a second to initialize:
-  delay(700);
+  delay(300);
   Serial.println("connecting...");
 
   // if you get a connection, report back via serial:
@@ -65,15 +77,26 @@ void setup() {
     // Make a HTTP request:
     client.println("GET /api/blink/2 HTTP/1.0");
     client.println();
+    Serial.println("Waiting for network connection.");
   } 
   else {
     // kf you didn't get a connection to the server:
     Serial.println("connection failed");
+    tft.println();
+    tft.print("Error");
+    tft.setTextSize(1);
+    tft.println();
+    tft.println();
+    tft.setTextSize(2);
+    tft.print("Could not");
+    tft.setTextSize(1);
+    tft.println();
+    tft.println();
+    tft.setTextSize(2);
+    tft.print("connect");
   }
-  tft.setTextColor(ST7735_WHITE);
-  tft.setTextSize(2);
-  tft.setTextWrap(true);
-  tft.setCursor(0, 0);
+  
+ 
   
   
   
@@ -83,16 +106,15 @@ void setup() {
 void loop()
 {
 
-
+  
   // if there are incoming bytes available 
   // from the server, read them and print them:
-  
   if (client.available()) {
     char c = client.read();
-    if ( c == '{' ) {
+    if ( c == '{' ) { //wait until the json starts with a bracket
       print = 1;
     }
-    if (print == 1) {
+    if (print == 1) { //save only the json
     json += c;
     }
     //Serial.print(c);
@@ -104,18 +126,32 @@ void loop()
 
   // if the server's disconnected, stop the client:
   if (!client.connected()) {
-    Serial.println(json);
+    Serial.println(json); //this will not appear on tft, it's only for debugging
     Serial.println();
+    
+    //turn the string into a char array so it can be parsed
     json.toCharArray(ajson, 500);
     
+    //find the data within the json, and create a variable with that data
     aJsonObject* jsonObject = aJson.parse(ajson);
     aJsonObject* ed = aJson.getObjectItem(jsonObject, "AmountApproved");
+    
+    //again, debugging purposes
     Serial.println("Amount Approved:");
     Serial.println(ed->valuefloat);
-    Serial.println("disconnecting.");
+    Serial.println("disconnecting.");  
     
+    client.stop();
+    
+    while(true) {
+      
+    if(screen == 1) { 
+    tft.fillScreen(ST7735_BLACK);
+    tft.setCursor(0, 0);
+    //print the data from the json
+    //currently only prints placeholder values 
     tft.println();
-    tft.println(" Stats");
+    tft.println(" Workload");
     tft.println(" ========");
     
     tft.print(" ed: 100%");
@@ -132,11 +168,34 @@ void loop()
     tft.setTextSize(2);
     tft.print(" am: 100%");
     
-    client.stop();
+    screen = 2;
+    delay(3000);
+    }
+    if(screen == 2) {
+    tft.fillScreen(ST7735_BLACK);
+    tft.setCursor(0, 0);
+    
+    tft.println();
+    tft.println(" Placeholder Page 2");
+    
+    screen = 3;
+    delay(3000);
+    }  
+    if(screen == 3) {
+    tft.fillScreen(ST7735_BLACK);
+    tft.setCursor(0, 0);
+    tft.println();
+    tft.println(" Placeholder Page 3");
+    tft.println(" This is cooler than Placeholder Page 2");
+    screen = 1;
+    delay(3000);
+    }
+    }
 
     // do nothing forevermore:
-    for(;;)
-      ;
+ 
+
+ 
   }
 }
 
