@@ -1,4 +1,4 @@
-/*
+ /*
   Web client
  
  This sketch connects to the Staywell Customs internal site
@@ -68,17 +68,13 @@ int report = 0;
 
 
 void setup() {
-
-  Serial.begin(9600);
-  Serial.println("Starting!");
   
-  //prepare the LCD to be printed to
   tft.initR(INITR_REDTAB);
   tft.fillScreen(ST7735_BLACK);
   tft.setTextColor(ST7735_WHITE); 
   tft.setTextSize(1);
   tft.setCursor(0, 10);
-  /*
+  
   tft.println(" Up/Down selects");
   tft.println(" the month");
   tft.println(" Left/Right selects");
@@ -89,11 +85,51 @@ void setup() {
   tft.println(" Current year");
   tft.print(" selection is ");
   tft.println(year);
+
+  Serial.begin(9600);
+  Serial.println("Starting!");
+  
+
+  
+  
+
+  // start the Ethernet connection:
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    // no point in carrying on, so do nothing forevermore:
+    for(;;)
+      ;
+  }
+  // give the Ethernet shield a second to initialize:
+  delay(300);
+  Serial.println("connecting...");
+
+  // if you get a connection, report back via serial:
+  if (client.connect(server, 8181)) {
+    Serial.println("connected");
+    // Make a HTTP request:
+    client.println("GET /api/blink/2 HTTP/1.0");
+    client.println();
+    //Serial.println("Waiting for network connection.");
+  } 
+  else {
+    // kf you didn't get a connection to the server:
+    Serial.println("connection failed");
+  }
+
+
+}
+
+
+
+void loop()
+{
+    //prepare the LCD to be printed to
+
   
   while( loadPage == 0 ) {
 
     uint8_t b = readButton();
-    tft.setTextSize(3);
     if (b == BUTTON_DOWN) {
       month++;
 
@@ -139,40 +175,6 @@ void setup() {
       tft.print(" aaaa");
     }
   }
-  */
-  
-
-  // start the Ethernet connection:
-  if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
-    // no point in carrying on, so do nothing forevermore:
-    for(;;)
-      ;
-  }
-  // give the Ethernet shield a second to initialize:
-  delay(300);
-  Serial.println("connecting...");
-
-  // if you get a connection, report back via serial:
-  if (client.connect(server, 8181)) {
-    Serial.println("connected");
-    // Make a HTTP request:
-    client.println("GET /api/blink/2 HTTP/1.0");
-    client.println();
-    //Serial.println("Waiting for network connection.");
-  } 
-  else {
-    // kf you didn't get a connection to the server:
-    Serial.println("connection failed");
-  }
-
-
-}
-
-
-
-void loop()
-{
    
 
     //Serial.print("Got out of loop!");
@@ -309,7 +311,7 @@ void loop()
     }
   }
   
-  /* uint8_t readButton(void) {
+  uint8_t readButton(void) {
   float a = analogRead(3);
 
   a *= 5.0;
@@ -324,14 +326,4 @@ void loop()
   if (a < 3.2) return BUTTON_LEFT;
   else return BUTTON_NONE;
 }
-
-*/
-
-
-
-
-
-
-
-
 
